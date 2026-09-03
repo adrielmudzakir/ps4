@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" manifest="cache.manifest">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Repair PS4 Host</title>
+
+    <style>
+        /* =====================================================
+           RESET & BASE
+           ===================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0a0e17;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #e8edf5;
+        }
+
+        /* =====================================================
+           BACKGROUND
+           ===================================================== */
+        .bg {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            background: #0a0e17;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            object-position: center;
+            opacity: 0.35;
+            filter: blur(2px) saturate(0.7);
+        }
+
+        /* =====================================================
+           OVERLAY GRADIENT
+           ===================================================== */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            background: radial-gradient(ellipse at 50% 40%, rgba(10, 30, 60, 0.3) 0%, rgba(10, 14, 23, 0.85) 80%);
+            pointer-events: none;
+        }
+
+        /* =====================================================
+           MAIN LAYOUT
+           ===================================================== */
+        .shell {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        /* =====================================================
+           CARD
+           ===================================================== */
+        .card {
+            width: min(540px, 92vw);
+            padding: 40px 36px 36px;
+            text-align: center;
+            background: rgba(14, 20, 34, 0.75);
+            backdrop-filter: blur(24px) saturate(1.2);
+            -webkit-backdrop-filter: blur(24px) saturate(1.2);
+            border: 1px solid rgba(80, 160, 255, 0.10);
+            border-radius: 32px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            transition: transform 0.3s ease;
+        }
+
+        /* =====================================================
+           BRAND
+           ===================================================== */
+        .brand {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .brand span {
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sub {
+            margin-top: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* =====================================================
+           STAGE
+           ===================================================== */
+        .stage {
+            margin-top: 32px;
+        }
+
+        /* =====================================================
+           STATUS
+           ===================================================== */
+        #state {
+            font-size: 15px;
+            font-weight: 550;
+            letter-spacing: 0.02em;
+            margin-bottom: 20px;
+            color: #fcd34d;
+            min-height: 28px;
+            transition: color 0.3s ease;
+        }
+
+        #state.ok {
+            color: #6ee7b7;
+        }
+        #state.bad {
+            color: #f87171;
+        }
+        #state.warn {
+            color: #fcd34d;
+        }
+
+        .pulse {
+            animation: pulse 1.6s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.45;
+            }
+        }
+
+        /* =====================================================
+           FIRMWARE DETECT
+           ===================================================== */
+        #det {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.35);
+            letter-spacing: 0.04em;
+            margin-bottom: 18px;
+            min-height: 20px;
+        }
+
+        #det b {
+            color: rgba(255, 255, 255, 0.75);
+            font-weight: 500;
+        }
+
+        /* =====================================================
+           PROGRESS BAR - MODERN
+           ===================================================== */
+        .progress-wrap {
+            width: 100%;
+            height: 6px;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        #bar {
+            width: 4%;
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* =====================================================
+           META
+           ===================================================== */
+        .meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 14px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.04em;
+        }
+
+        #cache.cacheok {
+            color: #6ee7b7;
+        }
+
+        #pct {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* =====================================================
+           FOOTER
+           ===================================================== */
+        .footer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 18px;
+            z-index: 3;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 450;
+            letter-spacing: 0.2em;
+            color: rgba(255, 255, 255, 0.15);
+            pointer-events: none;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+        @media (max-width: 600px) {
+            .card {
+                padding: 30px 22px 28px;
+                border-radius: 24px;
+            }
+            .brand {
+                font-size: 18px;
+            }
+            #state {
+                font-size: 14px;
+            }
+            .meta {
+                font-size: 10px;
+                flex-wrap: wrap;
+                gap: 6px;
+                justify-content: center;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .card {
+                padding: 22px 20px 20px;
+            }
+            .stage {
+                margin-top: 20px;
+            }
+            #state {
+                margin-bottom: 12px;
+            }
+            .footer {
+                bottom: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== BACKGROUND ===== -->
+    <div class="bg">
+        <img src="logo.png" alt="HR Repair">
+    </div>
+    <div class="overlay"></div>
+
+    <!-- ===== MAIN ===== -->
+    <div class="shell">
+        <main class="card">
+
+            <div class="brand">
+                HR <span>Repair</span> +21625733379
+            </div>
+            <div class="sub">PS4 Host</div>
+
+            <section class="stage">
+                <div id="state">Detecting firmware…</div>
+                <div id="det"></div>
+
+                <div class="progress-wrap">
+                    <div id="bar"></div>
+                </div>
+
+                <div class="meta">
+                    <div id="cache">Preparing offline cache…</div>
+                    <div id="pct">0%</div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">HR Repair +21625733379 • OFFLINE READY</div>
+
+    <!-- =====================================================
+    SCRIPT
+    ===================================================== -->
+    <script>
+        (function() {
+            const stateEl = document.getElementById('state');
+            const detEl = document.getElementById('det');
+            const cacheEl = document.getElementById('cache');
+            const barEl = document.getElementById('bar');
+            const pctEl = document.getElementById('pct');
+
+            function setState(text, cls) {
+                stateEl.textContent = text;
+                stateEl.className = cls || '';
+            }
+
+            function setCache(text, ok) {
+                cacheEl.textContent = text;
+                cacheEl.className = ok ? 'cacheok' : '';
+            }
+
+            function setProgress(n) {
+                n = Math.max(0, Math.min(100, n || 0));
+                barEl.style.width = n + '%';
+                pctEl.textContent = Math.round(n) + '%';
+            }
+
+            const params = new URLSearchParams(location.search);
+            let key = null,
+                fwnum = null;
+            const m = /PlayStation\s+4[\/ ](\d+)\.(\d+)/.exec(navigator.userAgent);
+
+            if (m) {
+                const minor = parseInt(m[2], 16);
+                const ms = minor.toString(16).padStart(2, '0');
+                key = m[1] + '.' + ms;
+                fwnum = parseInt(m[1], 10) * 100 + parseInt(ms, 10);
+            }
+
+            let bug = null,
+                why = '';
+            const forced = params.get('bug');
+
+            if (forced === 'lapse' || forced === 'poops') {
+                bug = forced;
+                why = 'forced via ?bug=' + forced;
+            } else if (!key) {
+                why = 'user-agent is not a PlayStation 4';
+            } else if (fwnum <= 1202) {
+                bug = 'lapse';
+                why = key + ' ≤ 12.02';
+            } else if (fwnum >= 1250) {
+                bug = 'poops';
+                why = key + ' ≥ 12.50';
+            } else {
+                why = key + ' — no working bug (lapse ≤ 12.02, poops ≥ 12.50)';
+            }
+
+            detEl.innerHTML = 'Firmware <b>' + (key || 'unknown') + '</b>  •  Mode <b>' + (bug || 'none') + '</b>';
+
+            if (!bug) {
+                setProgress(0);
+                setCache(why, false);
+                setState('UNSUPPORTED FIRMWARE', 'bad');
+                return;
+            }
+
+            const target = (bug === 'lapse' ? 'run_lapse.html' : 'run_poops.html') + location.search;
+
+            function go() {
+                setProgress(100);
+                setCache('Offline cache ready', true);
+                setState('Loading PS4 modification…', 'warn pulse');
+                setTimeout(() => { location.replace(target); }, 650);
+            }
+
+            function waitForTap(msg, action) {
+                setState(msg, 'warn');
+                const fire = () => {
+                    window.removeEventListener('click', fire);
+                    window.removeEventListener('keydown', fire);
+                    action();
+                };
+                window.addEventListener('click', fire);
+                window.addEventListener('keydown', fire);
+            }
+
+            const ac = window.applicationCache;
+            const hasManifest = document.documentElement.hasAttribute('manifest');
+
+            if (!ac || !hasManifest) {
+                setProgress(100);
+                go();
+            } else if (!navigator.onLine) {
+                setProgress(100);
+                setCache('Offline • loaded from cache', true);
+                go();
+            } else if (ac.status === ac.IDLE) {
+                setProgress(100);
+                setCache('Offline cache ready', true);
+                go();
+            } else if (ac.status === ac.UPDATEREADY) {
+                try { ac.swapCache(); } catch (_) {}
+                setProgress(100);
+                setCache('Update downloaded', true);
+                waitForTap('UPDATE READY • PRESS X TO RELOAD', () => location.reload());
+            } else {
+                setState('Preparing offline cache…', 'pulse');
+                setCache('Downloading required files…');
+                setProgress(2);
+
+                ac.addEventListener('downloading', () => {
+                    setState('Preparing offline cache…', 'pulse');
+                    setCache('Downloading required files…');
+                    setProgress(4);
+                }, false);
+
+                ac.addEventListener('progress', (e) => {
+                    if (e && e.total) {
+                        const p = Math.round((e.loaded / e.total) * 100);
+                        setProgress(p);
+                        setCache('Caching files for offline use…');
+                    }
+                }, false);
+
+                ac.addEventListener('cached', () => {
+                    setProgress(100);
+                    setCache('Offline cache ready', true);
+                    waitForTap('CACHE COMPLETE • PRESS X TO CONTINUE', go);
+                }, false);
+
+                ac.addEventListener('updateready', () => {
+                    try { ac.swapCache(); } catch (_) {}
+                    setProgress(100);
+                    setCache('Update downloaded', true);
+                    waitForTap('UPDATE READY • PRESS X TO RELOAD', () => location.reload());
+                }, false);
+
+                ac.addEventListener('noupdate', () => {
+                    setProgress(100);
+                    setCache('Offline cache ready', true);
+                    go();
+                }, false);
+
+                ac.addEventListener('error', () => {
+                    setProgress(0);
+                    setCache('Offline cache could not be prepared');
+                    waitForTap('CACHE FAILED • PRESS X TO CONTINUE ONLINE', go);
+                }, false);
+
+                ac.addEventListener('obsolete', () => {
+                    setProgress(0);
+                    setCache('Saved cache is no longer available');
+                    waitForTap('CACHE RESET • PRESS X TO CONTINUE ONLINE', go);
+                }, false);
+            }
+        })();
+    </script>
+
+</body>
+
+</html>
