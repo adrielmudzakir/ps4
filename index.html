@@ -292,7 +292,7 @@
         <main class="card">
 
             <div class="brand">
-                DZ <span>PlayStation</span> 08976627960
+                 <span>DZ PlayStation</span> 08976627960
             </div>
             <div class="sub">PS4 Host</div>
 
@@ -363,7 +363,7 @@
                 bug = forced;
                 why = 'forced via ?bug=' + forced;
             } else if (!key) {
-                why = 'user-agent is not a PlayStation 4';
+                why = 'Browser ini terdeteksi bukan PlayStation 4';
             } else if (fwnum <= 1202) {
                 bug = 'lapse';
                 why = key + ' ≤ 12.02';
@@ -379,7 +379,7 @@
             if (!bug) {
                 setProgress(0);
                 setCache(why, false);
-                setState('UNSUPPORTED FIRMWARE', 'bad');
+                setState('Mohon Maaf, System Ini Tidak Di Dukung', 'bad');
                 return;
             }
 
@@ -387,7 +387,7 @@
 
             function go() {
                 setProgress(100);
-                setCache('Offline cache ready', true);
+                setCache('Offline cache Siap', true);
                 setState('Loading PS4 modification…', 'warn pulse');
                 setTimeout(() => { location.replace(target); }, 650);
             }
@@ -415,13 +415,13 @@
                 go();
             } else if (ac.status === ac.IDLE) {
                 setProgress(100);
-                setCache('Offline cache ready', true);
+                setCache('Offline cache siap', true);
                 go();
             } else if (ac.status === ac.UPDATEREADY) {
                 try { ac.swapCache(); } catch (_) {}
                 setProgress(100);
                 setCache('Update downloaded', true);
-                waitForTap('UPDATE READY • PRESS X TO RELOAD', () => location.reload());
+                waitForTap('UPDATE SIAP • TEKAN X UNTUK MENGULANG', () => location.reload());
             } else {
                 setState('Preparing offline cache…', 'pulse');
                 setCache('Downloading required files…');
@@ -443,15 +443,15 @@
 
                 ac.addEventListener('cached', () => {
                     setProgress(100);
-                    setCache('Offline cache ready', true);
-                    waitForTap('CACHE COMPLETE • PRESS X TO CONTINUE', go);
+                    setCache('Offline cache Siap', true);
+                    waitForTap('CACHE SELESAI • TEKAN X UNTUK MELANJUTKAN', go);
                 }, false);
 
                 ac.addEventListener('updateready', () => {
                     try { ac.swapCache(); } catch (_) {}
                     setProgress(100);
                     setCache('Update downloaded', true);
-                    waitForTap('UPDATE READY • PRESS X TO RELOAD', () => location.reload());
+                    waitForTap('UPDATE SIAP • TEKAN X UNTUK MENGULANG', () => location.reload());
                 }, false);
 
                 ac.addEventListener('noupdate', () => {
@@ -462,14 +462,14 @@
 
                 ac.addEventListener('error', () => {
                     setProgress(0);
-                    setCache('Offline cache could not be prepared');
-                    waitForTap('CACHE FAILED • PRESS X TO CONTINUE ONLINE', go);
+                    setCache('Cache offline tidak bisa disiapkan');
+                    waitForTap('CACHE GAGAL • TEKAN UNTUK MELANJUTKAN ONLINE', go);
                 }, false);
 
                 ac.addEventListener('obsolete', () => {
                     setProgress(0);
-                    setCache('Saved cache is no longer available');
-                    waitForTap('CACHE RESET • PRESS X TO CONTINUE ONLINE', go);
+                    setCache('Cache yang disimpan sudah tidak tersedia lagi');
+                    waitForTap('RESET CACHE • TEKAN X UNTUK MELANJUTKAN ONLINE', go);
                 }, false);
             }
         })();
