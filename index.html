@@ -423,12 +423,12 @@
                 setCache('Update downloaded', true);
                 waitForTap('UPDATE SIAP • TEKAN X UNTUK MENGULANG', () => location.reload());
             } else {
-                setState('Preparing offline cache…', 'pulse');
+                setState('Persiapan offline cache…', 'pulse');
                 setCache('Downloading required files…');
                 setProgress(2);
 
                 ac.addEventListener('downloading', () => {
-                    setState('Preparing offline cache…', 'pulse');
+                    setState('Persiapan offline cache…', 'pulse');
                     setCache('Downloading required files…');
                     setProgress(4);
                 }, false);
